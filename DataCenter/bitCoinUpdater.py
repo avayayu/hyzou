@@ -3,22 +3,29 @@ from okCoin import OkcoinSpotAPI
 import pandas as pd
 from datetime import *
 from pandas.io.sql import frame_query
-from sqlalchemy import create_engine
-import sqlalchemy
 
-def writeFrameToDB(frame,con,table_name):
-    wildcards = ','.join(['?'] * len(frame.columns))
-    cur = con.cursor()
-    data = [tuple(x) for x in frame.values]
+from sqlalchemy import  *
 
-    cur.executemany("INSERT INTO %s VALUES(%s)" % (table_name, wildcards), data)
-    con.commit()
+# import DataCenter.myConnection as con
+from sqlalchemy.ext.declarative import declarative_base
+
+# def writeFrameToDB(frame,con,table_name):
+#     base = declarative_base()
+#
+#     meta = MetaData()
+#
+#
+#     engine = create_engine('mssql+pymssql://sa:Y2iaciej@10.31.201.123/IBData')
+#
+#     t = Table('Kline',meta,autoload_with=engine, autoload=True)
+#
+#     meta.
 
 
 con=ms.connect(host="10.31.201.123", user="sa", password="Y2iaciej",
                                            database="IBData")
 
-df=pd.read_sql('select max(timeStamp) as begindate from IBData.dbo.Kline',con=con)
+df=pd.read_sql('select max(timeStamps) as begindate from IBData.dbo.Kline',con=con)
 begindate = str(int(df.begindate[0]))
 
 apikey = '32889f87-6c37-4d17-a1ed-e067c046498b'
@@ -33,12 +40,12 @@ size=int(detal.total_seconds()/60)
 #现货API
 okcoinSpot = OkcoinSpotAPI.OKCoinSpot(okcoinRESTURL,apikey,secretkey)
 
-jsonResult=okcoinSpot.getKLine(symbol='btc_cny',since=begindate,type='1min',size=50)
-result=pd.DataFrame(jsonResult,columns=['timestamp','open','high','low','close','volumn'])
+jsonResult=okcoinSpot.getKLine(symbol='btc_cny',since=begindate,type='1min',size=size)
+result=pd.DataFrame(jsonResult,columns=['timestamps','openprice','highprice','lowprice','closeprice','volume'])
 
 
 engine = create_engine('mssql+pymssql://sa:Y2iaciej@10.31.201.123/IBData')
-result.to_sql("dbo.Kline",engine,if_exists = 'append',dtype={'timestamp': sqlalchemy.Float,'high':sqlalchemy.Float,'open':sqlalchemy.Float,'close':sqlalchemy.Float,'low':sqlalchemy.Float,'volumn':sqlalchemy.Float},chunksize=100)
+result.to_sql("KLine",engine,if_exists = 'append',index=None,chunksize=100)
 print(okcoinSpot.userinfo())
 print(jsonResult)
 
