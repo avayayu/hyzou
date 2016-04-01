@@ -26,8 +26,8 @@ import itertools
 import time
 import threading
 
-from ib.ext.Contract import Contract
-import ib.opt as ibopt
+from twspy.ib.Contract import Contract
+import twspy.ib as ibopt
 
 from backtrader.feed import DataBase
 from backtrader import TimeFrame, date2num
