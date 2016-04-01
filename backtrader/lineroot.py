@@ -273,12 +273,16 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
     __hash__ = object.__hash__
 
 
+
+
 class LineMultiple(LineRoot):
     '''
     Base class for LineXXX instances that hold more than one line
     '''
+
     def reset(self):
         self._stage1()
+
         self.lines.reset()
 
     def _stage1(self):
