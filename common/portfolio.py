@@ -3,16 +3,17 @@ import queue
 from hyzou.common.trade import *
 from hyzou.common.events import *
 from hyzou.common.data import BarError
+from hyzou.common import risk
 import pandas as pd
 import numpy as np
 class Portfolio(object):
 
     def __init__(self,market,strategy):
-        self.all_holdings={}
-        self.holdings={}
+        self.all_holdings=[]
+        self.holdings=None
 
-        self.opening_trade={}
-        self.all_trade={}
+        self.open_trades={}
+        self.all_trades=[]
 
         # Main events queue shared with Market and Execution
         self.events_queue = queue.PriorityQueue()
@@ -20,11 +21,15 @@ class Portfolio(object):
         self.strategy = strategy
 
         # Grabbing config from strategy
-        #[setattr(self, key, val) for key, val in self.strategy.settings.items()]
+        [setattr(self, key, val) for key, val in self.strategy.settings.items()]
+
+        self.risk = risk.RiskAnalysis(self.strategy.settings, self.cash_balance, self.net_liquidation)
+
+
         self.strategy.events_queue = self.events_queue
         self.strategy.market = self.market
         self.strategy.risk = self.risk
-        #self.risk = RiskAnalysis(self.strategy.settings, self.cash_balance, self.net_liquidation)
+
         self.market.events_queue_list.append(self.events_queue)
     @property
     def long_positions(self):

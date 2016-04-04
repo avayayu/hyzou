@@ -1,13 +1,13 @@
 # Backtesting specific configuration
 
 # Normalize all prices based on relation between adj_close and close
-NORMALIZE_PRICES = True
+#NORMALIZE_PRICES = True
 
 # Normalize volume based on relation between adj_close and close
-NORMALIZE_VOLUME = False
+#NORMALIZE_VOLUME = False
 
 # Initial portfolio capital
-INITIAL_CAPITAL = 10000.00
+INITIAL_CAPITAL = 100000.00
 # Limits the maximum cash that can be traded
 CAPITAL_TRADABLE_CAP = 0
 

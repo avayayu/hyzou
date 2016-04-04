@@ -2,7 +2,7 @@ import logging
 
 import pandas as pd
 import pymssql as ms
-
+import numpy as np
 from hyzou.common.events import *
 
 
@@ -29,6 +29,8 @@ class Bars(object):
             self.close = [i[4] for i in latest_bars]
             self.volume = [i[5] for i in latest_bars]
 
+    def mavg(self, price_type='close'):
+        return np.mean(getattr(self, price_type))
 
 
     def __len__(self):
@@ -58,7 +60,7 @@ class MarketData(object):
 
         self.load_time = datetime.datetime.now()-start_load_time
 
-        print('load data took '+str(self.load_time.seconds))
+        print('load data took '+str(self.load_time.seconds) + " secs")
 
         self.events_queue_list = []
 
@@ -78,7 +80,7 @@ class MarketData(object):
     def loadData(self,symbol,):
         if(symbol=='bitcoin'):
             con=self.dbConnection('home')
-            df=pd.read_sql('select [timestamps] as [datetime],openprice as [open],highprice as [high],lowprice as [low],closeprice as [close], volume from kline',con)
+            df=pd.read_sql('select [timestamps] as [datetime],openprice as [open],highprice as [high],lowprice as [low],closeprice as [close], volume from kline order by timestamps ac',con)
             df['datetime']=df['datetime'].apply(lambda x:datetime.datetime.fromtimestamp(float(x)/1000))
             df=df.set_index(keys=['datetime'])
             return df
@@ -150,6 +152,8 @@ class MarketData(object):
     #         raise BarError("No price recorded for {} today".format(symbol))
     #     last_close = self.yesterday(symbol).close
     #     return self._data[symbol]['last_price']/last_close - 1
+
+
 
     def bars(self, symbol, N=1):
         """ Returns latest N bars including today's values """

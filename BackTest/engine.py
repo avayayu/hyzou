@@ -8,20 +8,17 @@ import pandas as pd
 #from hyzou import settings
 from hyzou.BackTest import backtestData
 from hyzou.common.strategy import Strategy
-from hyzou.backtest.backtestPortfolio import BacktestPortfolio
+from hyzou.BackTest.backtestPortfolio import BacktestPortfolio
 
 
 class BacktestEngine(object):
-    def __init__(self, strategies, data_dir, start_automatically=True):
+    def __init__(self, strategies,symbol_list=['bitcoin'], start_automatically=True):
 
         if not strategies:
             raise ValueError("Empty strategies list in your algo file.")
-
+        self.symbol_list=symbol_list
         # Single market object will be used for all backtesting instances
-        self.market = backtestData(
-             #should come from script loader
-            strategies[0].settings['SYMBOL_LIST'],
-        )
+        self.market = backtestData.BacktestMarketData(symbol_list=self.symbol_list)
 
         self.portfolios = []
 
