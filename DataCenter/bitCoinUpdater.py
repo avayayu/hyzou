@@ -1,8 +1,7 @@
 import pymssql as ms
-from okCoin import OkcoinSpotAPI
+from hyzou.okCoin import OkcoinSpotAPI
 import pandas as pd
 from datetime import *
-from pandas.io.sql import frame_query
 
 from sqlalchemy import  *
 
@@ -22,10 +21,10 @@ from sqlalchemy.ext.declarative import declarative_base
 #     meta.
 
 
-con=ms.connect(host="10.31.201.123", user="sa", password="Y2iaciej",
-                                           database="IBData")
+con=ms.connect(host="192.168.1.5", user="sa", password="Y2iaciej",
+                                           database="Quant2")
 
-df=pd.read_sql('select max(timeStamps) as begindate from IBData.dbo.Kline',con=con)
+df=pd.read_sql('select max(timeStamps) as begindate from Quant2.dbo.Kline',con=con)
 begindate = str(int(df.begindate[0]))
 
 apikey = '32889f87-6c37-4d17-a1ed-e067c046498b'
@@ -44,7 +43,7 @@ jsonResult=okcoinSpot.getKLine(symbol='btc_cny',since=begindate,type='1min',size
 result=pd.DataFrame(jsonResult,columns=['timestamps','openprice','highprice','lowprice','closeprice','volume'])
 
 
-engine = create_engine('mssql+pymssql://sa:Y2iaciej@10.31.201.123/IBData')
+engine = create_engine('mssql+pymssql://sa:Y2iaciej@192.168.1.5/Quant2')
 result.to_sql("KLine",engine,if_exists = 'append',index=None,chunksize=100)
 print(okcoinSpot.userinfo())
 print(jsonResult)

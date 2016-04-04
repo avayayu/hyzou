@@ -44,7 +44,7 @@ def _ts2dt(tstamp=None):
     if not tstamp:
         return datetime.utcnow()  # or .now() ??
 
-    sec, msec = divmod(long(tstamp), 1000)
+    sec, msec = divmod(int(tstamp), 1000)
     usec = msec * 1000
     return datetime.fromtimestamp(sec).replace(microsecond=usec)
 
