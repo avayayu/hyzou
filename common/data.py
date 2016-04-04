@@ -43,6 +43,8 @@ class MarketData(object):
     def __init__(self,symbol_list=['bitcoin']):
         start_load_time=datetime.datetime.now()
 
+        self.symbol_list=symbol_list
+
         self._data={}
 
         self._last_historical_bar_for = {}
@@ -50,13 +52,13 @@ class MarketData(object):
             self._data[symbol] = {}
             df=self.loadData(symbol=symbol)
             self._data[symbol]['df']=df
-            self._last_historical_bar_for[symbol]=self._data[symbol].index[-1]
+            self._last_historical_bar_for[symbol]=self._data[symbol]['df'].index[-1]
 
         self._pad_empty_values()
 
         self.load_time = datetime.datetime.now()-start_load_time
 
-        print('load data took '+self.load_time)
+        print('load data took '+str(self.load_time.seconds))
 
         self.events_queue_list = []
 
@@ -76,8 +78,9 @@ class MarketData(object):
     def loadData(self,symbol,):
         if(symbol=='bitcoin'):
             con=self.dbConnection('home')
-            df=pd.read_sql('select [timestamps] as [datetime],openprice as [open],highprice as [high],lowprice as [low],closeprice as [close], volume from kline')
-            df=df.apply(lambda x:datetime.datetime.fromtimestamp(float(x)/1000)).reset_index(keys=['datetime'])
+            df=pd.read_sql('select [timestamps] as [datetime],openprice as [open],highprice as [high],lowprice as [low],closeprice as [close], volume from kline',con)
+            df['datetime']=df['datetime'].apply(lambda x:datetime.datetime.fromtimestamp(float(x)/1000))
+            df=df.set_index(keys=['datetime'])
             return df
 
     def _pad_empty_values(self):

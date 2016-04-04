@@ -8,7 +8,7 @@ import pandas as pd
 #from hyzou import settings
 from hyzou.BackTest import backtestData
 from hyzou.common.strategy import Strategy
-from hyzou.backtest.portfolio import BacktestPortfolio
+from hyzou.backtest.backtestPortfolio import BacktestPortfolio
 
 
 class BacktestEngine(object):

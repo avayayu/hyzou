@@ -5,10 +5,10 @@ from hyzou.common.events import MarketEvent
 
 class BacktestMarketData(MarketData):
 
-    def __init__(self, csv_dir, symbol_list=['bitcoin'],
+    def __init__(self, symbol_list=['bitcoin'],
                  date_from='', date_to=''):
 
-        super(BacktestMarketData, self).__init__(csv_dir,symbol_list)
+        super(BacktestMarketData, self).__init__(symbol_list)
 
         for s in symbol_list:
             # Limit between date_From and date_to
@@ -103,3 +103,8 @@ class BacktestMarketData(MarketData):
 
         except StopIteration:
             self.continue_execution = False
+
+if __name__=='__main__':
+    data=BacktestMarketData()
+    for s in data._update_bars():
+        print(s)

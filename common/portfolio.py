@@ -2,7 +2,7 @@ import logging
 import queue
 
 from hyzou.common.events import *
-
+from hyzou.common.data import BarError
 
 class Portfolio(object):
 
@@ -20,9 +20,11 @@ class Portfolio(object):
 
         # Grabbing config from strategy
         #[setattr(self, key, val) for key, val in self.strategy.settings.items()]
-
+        self.strategy.events_queue = self.events_queue
+        self.strategy.market = self.market
+        self.strategy.risk = self.risk
         #self.risk = RiskAnalysis(self.strategy.settings, self.cash_balance, self.net_liquidation)
-
+        self.market.events_queue_list.append(self.events_queue)
     @property
     def long_positions(self):
         return [trade for trade in self.open_trades.values() if trade.direction in ('BUY')]
