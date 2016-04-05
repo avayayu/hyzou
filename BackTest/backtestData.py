@@ -1,14 +1,14 @@
 import logging
 
-from hyzou.common.data import MarketData, Bars
-from hyzou.common.events import MarketEvent
+from common.data import MarketData, Bars
+from common.events import MarketEvent
 
 class BacktestMarketData(MarketData):
 
     def __init__(self, symbol_list=['bitcoin'],
-                 date_from='', date_to=''):
+                 date_from='', date_to='',data_source='home'):
 
-        super(BacktestMarketData, self).__init__(symbol_list)
+        super(BacktestMarketData, self).__init__(symbol_list,data_source=data_source)
 
         for s in symbol_list:
             # Limit between date_From and date_to
@@ -64,14 +64,14 @@ class BacktestMarketData(MarketData):
             self.updated_at = new_row[0]
 
             # Before open
-            self._relay_market_event(MarketEvent('before_open'))
+            self._relay_market_event(MarketEvent('before_open',market_time=new_row[0]))
             yield
 
             # On open - open = latest_bars[-1][1]
             for s in self.symbol_list:
                 self._data[s]['last_price'] = self._data[s]['open']
             for s in self.symbol_list:
-                self._relay_market_event(MarketEvent('on_open', s))
+                self._relay_market_event(MarketEvent('on_open',market_time=new_row[0],symbol=s))
                 yield
 
             # During #1
@@ -79,7 +79,7 @@ class BacktestMarketData(MarketData):
                 d = self._data[s]
                 self._data[s]['last_price'] = d['low'] if d['close']>d['open'] else d['high']
             for s in self.symbol_list:
-                self._relay_market_event(MarketEvent('during', s))
+                self._relay_market_event(MarketEvent('during',market_time=new_row[0],symbol=s))
                 yield
 
             # During #2
@@ -87,18 +87,18 @@ class BacktestMarketData(MarketData):
                 d = self._data[s]
                 self._data[s]['last_price'] = d['high'] if d['close']>d['open'] else d['low']
             for s in self.symbol_list:
-                self._relay_market_event(MarketEvent('during', s))
+                self._relay_market_event(MarketEvent('during',market_time=new_row[0],symbol=s))
                 yield
 
             # On close
             for s in self.symbol_list:
                 self._data[s]['last_price'] = self._data[s]['close']
             for s in self.symbol_list:
-                self._relay_market_event(MarketEvent('on_close', s))
+                self._relay_market_event(MarketEvent('on_close',market_time=new_row[0],symbol=s))
                 yield
 
             # After close, last_price will still be close
-            self._relay_market_event(MarketEvent('after_close'))
+            self._relay_market_event(MarketEvent('after_close',market_time=new_row[0]))
             yield
 
         except StopIteration:

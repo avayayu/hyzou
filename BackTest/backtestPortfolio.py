@@ -2,8 +2,8 @@ import datetime
 import logging
 from math import fsum
 
-from hyzou.common.events import FillEvent
-from hyzou.common.portfolio import Portfolio
+from common.events import FillEvent
+from common.portfolio import Portfolio
 
 class BacktestPortfolio(Portfolio):
 

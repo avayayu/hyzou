@@ -8,8 +8,8 @@ import queue
 
 import numpy as np
 
-from hyzou.LiveTrading import settings, utils
-from hyzou.common.events import SignalEvent
+from LiveTrading import settings, utils
+from common.events import SignalEvent
 
 
 class Strategy(object):
@@ -53,12 +53,6 @@ class Strategy(object):
         self.settings['HISTORICAL_DATA_SOURCE'] = getattr(self, 'HISTORICAL_DATA_SOURCE', settings.HISTORICAL_DATA_SOURCE)
 
     def initialize(self):
-        pass
-
-    def before_open(self):
-        pass
-
-    def after_close(self):
         pass
 
     def get_arg(self, index, default=None):
@@ -113,35 +107,36 @@ class Strategy(object):
         self._subscribed_symbols = set()
         self._unsubscribe_all = False
 
-    def _call_strategy_method(self, method_name, symbol=None):
+    def _call_strategy_method(self, method_name, symbol=None,event=None):
         method = getattr(self, method_name)
         if symbol:
             if self.is_subscribed_to(symbol):
-                method(symbol)
+                method(symbol,event)
         else:
             method()
 
-    def before_open(self):
+    def before_open(self,event=None):
         # Should be overloaded by each strategy algorithm
         pass
 
-    def on_open(self, symbol):
+    def on_open(self, symbol,event=None):
         # Should be overloaded by each strategy algorithm
         pass
 
-    def during(self, symbol):
+    def during(self, symbol,event=None):
         # Should be overloaded by each strategy algorithm
         pass
 
-    def on_close(self, symbol):
+    def on_close(self, symbol,event=None):
         # Should be overloaded by each strategy algorithm
         pass
 
-    def after_close(self):
+    def after_close(self,event=None):
         # Should be overloaded by each strategy algorithm
+
         pass
 
-    def after_backtest(self, performance):
+    def after_backtest(self, performance,event=None):
         # Should be overloaded by each strategy algorithm
         pass
 

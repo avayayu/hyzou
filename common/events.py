@@ -14,7 +14,7 @@ class Event(object):
 
 class MarketEvent(Event):
 
-    def __init__(self, sub_type, symbol=None, updated_field_type=None, updated_value=None):
+    def __init__(self, sub_type,market_time,symbol=None, updated_field_type=None, updated_value=None):
 
         if sub_type not in ('before_open', 'on_open', 'during' ,'on_close', 'after_close'):
             raise ValueError("Wrong type of MarketEvent sub_type.")
@@ -24,6 +24,7 @@ class MarketEvent(Event):
         self.symbol = symbol
         self.updated_field_type = updated_field_type
         self.updated_value = updated_value
+        self.market_time=market_time
         self.created_at = datetime.datetime.now()
 
 

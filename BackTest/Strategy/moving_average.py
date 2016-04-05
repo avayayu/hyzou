@@ -1,15 +1,14 @@
-from  hyzou.common.strategy import  *
-import hyzou.common.data as dt
+from  common.strategy import  *
+import common.data as dt
 class MovingAverage(Strategy):
     def initialize(self):
         self.SYMBOL_LIST=['bitcoin']
         self.fast = self.get_arg(0, 5)
         self.slow = self.get_arg(1, 15)
 
-    def during(self, symbol):
-        print(self.market._todays_bar(symbol=symbol))
 
-    def after_close(self):
+
+    def after_close(self,event=None):
         for symbol in self.SYMBOL_LIST:
             try:
                 slow = self.market.bars(symbol, self.slow).mavg('close')
@@ -21,6 +20,8 @@ class MovingAverage(Strategy):
                     self.sell(symbol)
             except dt.BarError as e:
                 pass
+    def on_open(self,symbol,event=None):
+        print('today is '+str(event.market_time)+'  '+str(self.market.yesterday(symbol=symbol)))
 
 
 # strategies = [MovingAverage(5,i) for i in botcoin.optimize((5,100,5))]

@@ -3,8 +3,8 @@ import logging
 import pandas as pd
 import pymssql as ms
 import numpy as np
-from hyzou.common.events import *
-
+from common.events import *
+import datetime
 
 class Bars(object):
     """
@@ -36,16 +36,22 @@ class Bars(object):
     def __len__(self):
         return self.length
 
+    def __str__(self):
+        return str(self.datetime)+' open:'+str(self.open) + ' high:'+str(self.high)+' low:'+str(self.low)+' close:'+str(self.close)+' volume:'+str(self.volume)
+
+
 class BarError(Exception):
     """ Required for a specific type of Error that is catched on portfolio. """
     pass
 
 
 class MarketData(object):
-    def __init__(self,symbol_list=['bitcoin']):
+    def __init__(self,symbol_list=['bitcoin'],data_source='home'):
         start_load_time=datetime.datetime.now()
 
         self.symbol_list=symbol_list
+
+        self.data_source=data_source
 
         self._data={}
 
@@ -64,13 +70,15 @@ class MarketData(object):
 
         self.events_queue_list = []
 
+        self.market_events_list=[]
+
 
 
 
     def dbConnection(self,dbname):
         if(dbname=='work'):
-            con=ms.connect(host="192.168.1.5", user="sa", password="Y2iaciej",
-                                           database="Quant2")
+            con=ms.connect(host="10.31.201.123", user="sa", password="Y2iaciej",
+                                           database="IBdata")
             return con
         if(dbname=='home'):
             con=ms.connect(host="192.168.1.5", user="sa", password="Y2iaciej",
@@ -79,8 +87,8 @@ class MarketData(object):
 
     def loadData(self,symbol,):
         if(symbol=='bitcoin'):
-            con=self.dbConnection('home')
-            df=pd.read_sql('select [timestamps] as [datetime],openprice as [open],highprice as [high],lowprice as [low],closeprice as [close], volume from kline order by timestamps ac',con)
+            con=self.dbConnection(self.data_source)
+            df=pd.read_sql('select [timestamps] as [datetime],openprice as [open],highprice as [high],lowprice as [low],closeprice as [close], volume from kline order by timestamps asc',con)
             df['datetime']=df['datetime'].apply(lambda x:datetime.datetime.fromtimestamp(float(x)/1000))
             df=df.set_index(keys=['datetime'])
             return df
@@ -104,8 +112,10 @@ class MarketData(object):
 
     def _relay_market_event(self, e):
         """ Puts e, which should be a MarketEvent on all queues in self.events_queue_list """
+
         if isinstance(e, MarketEvent):
             [q.put(e) for q in self.events_queue_list]
+            self.market_events_list.append(e)
         else:
             raise TypeError("MarketData._relay_market_event only accepts MarketEvent objects.")
 

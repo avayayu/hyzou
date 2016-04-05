@@ -8,7 +8,7 @@ import backtrader as bt
 import pandas as pd
 import pymssql as ms
 import datetime
-from hyzou.BackTest.Strategy import First
+from BackTest.Strategy import First
 
 class PandasDataOkCoin(bt.feeds.PandasData):
 

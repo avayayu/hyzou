@@ -1,9 +1,9 @@
 import logging
 import queue
-from hyzou.common.trade import *
-from hyzou.common.events import *
-from hyzou.common.data import BarError
-from hyzou.common import risk
+from common.trade import *
+from common.events import *
+from common.data import BarError
+from common import risk
 import pandas as pd
 import numpy as np
 class Portfolio(object):
@@ -29,6 +29,9 @@ class Portfolio(object):
         self.strategy.events_queue = self.events_queue
         self.strategy.market = self.market
         self.strategy.risk = self.risk
+
+
+        self.performance={}
 
         self.market.events_queue_list.append(self.events_queue)
     @property
@@ -66,22 +69,22 @@ class Portfolio(object):
 
         if event.sub_type == 'before_open':
             self.market_opened()
-            self.strategy.before_open()
+            self.strategy.before_open(event=event)
 
         elif event.sub_type == 'after_close':
             self.market_closed()
-            self.strategy.after_close()
+            self.strategy.after_close(event=event)
 
         else:
             try:
                 if event.sub_type == 'on_open':
-                    self.strategy._call_strategy_method('on_open', event.symbol)
+                    self.strategy._call_strategy_method('on_open', event.symbol,event=event)
 
                 elif event.sub_type == 'during':
-                    self.strategy._call_strategy_method('during', event.symbol)
+                    self.strategy._call_strategy_method('during', event.symbol,event=event)
 
                 elif event.sub_type == 'on_close':
-                    self.strategy._call_strategy_method('on_close', event.symbol)
+                    self.strategy._call_strategy_method('on_close', event.symbol,event=event)
 
             except BarError as e:
                 # Problems in market bars or past_bars would raise BarError
@@ -158,7 +161,7 @@ class Portfolio(object):
             del self.open_trades[fill.symbol]
 
     def status_reporting(self):
-        from hyzou.LiveTrading.utils import _round
+        from LiveTrading.utils import _round
         logging.debug("Portfolio reporting - cash balance {} - net liquidation {}".format(self.cash_balance(), self.net_liquidation()))
         for s,t in self.open_trades.items():
             try:
