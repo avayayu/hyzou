@@ -31,12 +31,14 @@ class BacktestPortfolio(Portfolio):
     def market_opened(self):
         cur_datetime = self.market.updated_at
 
+        #self.market.is_market_opened = True
+
         # If there is no current holding, meaning execution just started
         if not self.holdings:
             self.holdings = self.construct_holding(cur_datetime, self.INITIAL_CAPITAL, 0.00, self.INITIAL_CAPITAL)
 
         else:
-            if (cur_datetime <= self.holdings['datetime']):
+            if  cur_datetime <= self.holdings['datetime']:
                 raise ValueError("New bar arrived with same datetime as previous holding. Aborting!")
 
             # Add current holdings to all_holdings lists
@@ -46,14 +48,17 @@ class BacktestPortfolio(Portfolio):
                 cur_datetime,
                 self.holdings['cash'],
                 self.holdings['commission'],
-                self.holdings['total']
+                self.holdings['total'],
             )
 
         self.strategy._market_opened()
 
     def market_closed(self):
+
         if not all([t.entry_is_fully_filled for t in self.open_trades.values()]):
             logging.warning("Market closed while there are pending orders. Shouldn't happen in backtesting.")
+
+        #self.market.is_market_opened=False
 
         # open_trades used for keeping track of open trades over time
         self.holdings['open_trades'] = len(self.open_trades)
@@ -99,10 +104,16 @@ class BacktestPortfolio(Portfolio):
         trade = self.open_trades[fill.symbol]
 
         if trade.is_fill_relevant_to_portfolio(fill):
+            #每一次真实的交易后就将前一次holding加入all_holdings列表
+            self.all_holdings.append(self.holdings)
             self.holdings['commission'] += fill.commission
             self.holdings['cash'] -= (fill.quantity * fill.avg_cost + fill.commission)
 
+            #self.holdings['datetime']=self.market._data[fill.symbol]['updated_at']
+
         trade.update_from_fill(fill, fake_exited_at=self.market.updated_at)
+
+        #self.holdings['total'] = self.net_liquidation()
 
         self.archive_trade_if_exited(fill)
 

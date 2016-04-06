@@ -2,7 +2,7 @@ import BackTest as bt
 from BackTest.Strategy import moving_average
 
 st=moving_average.MovingAverage()
-engine=bt.BacktestEngine(start_automatically=False,strategies=[st,],data_source='work')
+engine=bt.BacktestEngine(start_automatically=False,strategies=[st,],data_source='work',resample='5t')
 
 
 engine.start()

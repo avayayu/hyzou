@@ -5,15 +5,27 @@ from common.events import MarketEvent
 
 class BacktestMarketData(MarketData):
 
-    def __init__(self, symbol_list=['bitcoin'],
-                 date_from='', date_to='',data_source='home'):
+    def __init__(self, symbol_list=['bitcoin'], date_from='', date_to='',data_source='home',resample=None):
 
         super(BacktestMarketData, self).__init__(symbol_list,data_source=data_source)
+
+        self.date_from = self._data[self.symbol_list[0]]['df'].index[0]
+        self.date_to = self._data[self.symbol_list[0]]['df'].index[-1]
+
+        self.is_market_opened=False
 
         for s in symbol_list:
             # Limit between date_From and date_to
             self._data[s]['df'] = self._data[s]['df'][date_from:] if date_from else self._data[s]['df']
             self._data[s]['df'] = self._data[s]['df'][:date_to] if date_to else self._data[s]['df']
+
+
+            if resample is not None:
+                try:
+                    self._data[s]['df']=self._data[s]['df'].resample(resample)
+                except Exception:
+                    print('resample error')
+                    return
 
             # Check for empty dfs
             if self._data[s]['df'].empty:
@@ -26,8 +38,6 @@ class BacktestMarketData(MarketData):
             self._data[s]['latest_bars'] = []
 
         self.continue_execution = True
-        self.date_from = self._data[self.symbol_list[0]]['df'].index[0]
-        self.date_to = self._data[self.symbol_list[0]]['df'].index[-1]
 
     def _update_bars(self):
         """
@@ -63,7 +73,8 @@ class BacktestMarketData(MarketData):
 
             self.updated_at = new_row[0]
 
-            # Before open
+            #if self.is_market_opened==False:
+                # Before open
             self._relay_market_event(MarketEvent('before_open',market_time=new_row[0]))
             yield
 
@@ -98,6 +109,7 @@ class BacktestMarketData(MarketData):
                 yield
 
             # After close, last_price will still be close
+            #if self.is_market_opened == False:
             self._relay_market_event(MarketEvent('after_close',market_time=new_row[0]))
             yield
 

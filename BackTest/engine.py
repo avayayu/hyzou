@@ -12,13 +12,15 @@ from BackTest.backtestPortfolio import BacktestPortfolio
 
 
 class BacktestEngine(object):
-    def __init__(self, strategies,symbol_list=['bitcoin'], start_automatically=True,data_source='home'):
+    def __init__(self, strategies,symbol_list=['bitcoin'], start_automatically=True,data_source='home',resample=None):
 
         if not strategies:
             raise ValueError("Empty strategies list in your algo file.")
+
         self.symbol_list=symbol_list
+
         # Single market object will be used for all backtesting instances
-        self.market = backtestData.BacktestMarketData(symbol_list=self.symbol_list,data_source=data_source)
+        self.market = backtestData.BacktestMarketData(symbol_list=self.symbol_list,data_source=data_source,resample=resample)
 
         self.portfolios = []
 

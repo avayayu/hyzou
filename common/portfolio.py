@@ -25,15 +25,13 @@ class Portfolio(object):
 
         self.risk = risk.RiskAnalysis(self.strategy.settings, self.cash_balance, self.net_liquidation)
 
-
         self.strategy.events_queue = self.events_queue
         self.strategy.market = self.market
         self.strategy.risk = self.risk
-
-
         self.performance={}
 
         self.market.events_queue_list.append(self.events_queue)
+
     @property
     def long_positions(self):
         return [trade for trade in self.open_trades.values() if trade.direction in ('BUY')]
