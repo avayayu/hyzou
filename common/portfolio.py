@@ -225,12 +225,19 @@ class Portfolio(object):
         curve['equity_curve'] = (1.0+curve['returns']).cumprod()
         results['equity_curve'] = curve['equity_curve']
 
+        #caculate positions
+        results['positions']=1-curve['cash']/curve['total']
+
         # Number of days elapsed between first and last bar
         days = (curve.index[-1]-curve.index[0]).days
         years = days/365.2425
 
         # Average bars each year, used to calculate sharpe ratio (N)
         avg_bars_per_year = len(curve.index)/years # curve.groupby(curve.index.year).count())
+
+        #everyday return
+        results['return']=[trade.pnl for trade in self.all_trades]
+
 
         # Total return
         results['total_return'] = ((curve['equity_curve'][-1] - 1.0) * 100.0)
@@ -244,8 +251,8 @@ class Portfolio(object):
         # Trades statistic
         results['trades'] = len(self.all_trades)
         results['trades_per_year'] = results['trades']/years
-        results['pct_trades_profit'] = len([trade for trade in self.all_trades if trade.pnl > 0])/results['trades'] if results['trades'] else 0.0
-        results['pct_trades_loss'] = len([trade for trade in self.all_trades if trade.pnl <= 0])/results['trades'] if results['trades'] else 0.0
+        results['pct_trades_profit'] = (len([trade for trade in self.all_trades if trade.pnl > 0])*100)/results['trades'] if results['trades'] else 0.0
+        results['pct_trades_loss'] = (len([trade for trade in self.all_trades if trade.pnl <= 0])*100)/results['trades'] if results['trades'] else 0.0
 
         # Dangerous trades that constitute more than THRESHOLD_DANGEROUS_TRADE of returns
         results['dangerous'] = True if not results['dangerous_trades'].empty else False
