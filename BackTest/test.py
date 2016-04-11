@@ -1,9 +1,10 @@
 import BackTest as bt
-from BackTest.Strategy import moving_average
+from BackTest.Strategy import moving_average,taLib_strategy
 import sys
 print(sys.path)
 st=moving_average.MovingAverage()
-engine=bt.BacktestEngine(start_automatically=False,strategies=[st,],data_source='work',resample='60t')
+st2=taLib_strategy.STOCHRSIStrategy()
+engine=bt.BacktestEngine(start_automatically=False,strategies=[st2,],data_source='work',resample='60t')
 
 
 engine.start()

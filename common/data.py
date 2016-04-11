@@ -189,7 +189,9 @@ class MarketData(object):
             bars = self._data[symbol]['latest_bars'][-1:]
 
         elif option == 'bars':
-            bars = self._data[symbol]['latest_bars'][-(N-1):]
+            bars=[]
+            if N > 1 :
+                bars = self._data[symbol]['latest_bars'][-(N-2):]
             bars.append(self._todays_bar(symbol))
 
         elif option == 'past_bars':

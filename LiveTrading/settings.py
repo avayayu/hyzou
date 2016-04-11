@@ -16,16 +16,16 @@ ROUND_LOT_SIZE = 1
 
 # If both COMMISSION_FIXED and COMMISSION_PCT are set, both will be charged on each trade
 # Fixed commission charged on each trade
-COMMISSION_FIXED = 0.0
+COMMISSION_FIXED = 0.000
 # Percentage commission charged on each trade
 #COMMISSION_PCT = 0.0008 # IB fixed commission Australia
 # Minimum commission to be charged
-COMMISSION_PCT=0
-#COMMISSION_MIN = 6.0
-COMMISSION_MIN=0
+COMMISSION_PCT=0.0000
+COMMISSION_MIN = 0
+#COMMISSION_MIN=0
 
 # Used by portfolio to calculate limit_prices and estimated cost for Orders
-MAX_SLIPPAGE = 0.0000
+MAX_SLIPPAGE = 0.0002
 
 # Max number of concurrent open long positions
 MAX_LONG_POSITIONS = 1
